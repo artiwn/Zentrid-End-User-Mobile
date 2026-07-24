@@ -15,3 +15,13 @@ This is an independent codebase, not a responsive patch inside the desktop porta
 ## Backend limitations represented honestly
 
 The current backend does not expose dedicated End User dashboard, reports, sales, settlement, payment or profile-update controllers. The mobile application combines the available plant/device/alert/telemetry identity data and shows empty/read-only states for unavailable features instead of creating local values.
+
+
+## PWA and session readiness
+
+- Version: 1.0.4
+- Apple touch icon, 192/512 icons and maskable Android icon
+- Offline navigation fallback
+- Service worker update prompt and old-cache cleanup
+- Runtime session-expiration redirect
+- Logout confirmation

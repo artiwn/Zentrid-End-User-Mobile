@@ -1,6 +1,6 @@
 # Zentrid End User Mobile
 
-Standalone mobile-first PWA for FleetOS/Zentrid End Users. This repository is separate from the desktop End User portal and contains its own UI, build, authentication flow, local API proxy, Vercel routing, PWA manifest and service worker.
+Standalone mobile-first PWA for FleetOS/Zentrid End Users. This repository is separate from the desktop End User portal and contains its own UI, build, authentication flow, local API proxy, Vercel routing, PWA manifest, install icons, offline screen and service worker update flow.
 
 ## Mobile screens
 
@@ -46,6 +46,16 @@ npm.cmd run build:vercel
 
 The static deployment is generated in `dist`. Vercel uses `vercel.json` to proxy `/api/*` requests to the FleetOS backends.
 
+## PWA behaviour
+
+- Apple touch icon for iPhone/iPad
+- 192px and 512px install icons
+- Maskable Android icon
+- Offline fallback screen
+- Automatic shell cache cleanup
+- User-visible update prompt when a new deployment is available
+- Session-expiration redirect and confirmed logout
+
 ## Deploy
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for GitHub and Vercel steps.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for GitHub, Vercel and phone installation steps.

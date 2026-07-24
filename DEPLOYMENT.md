@@ -39,6 +39,21 @@ https://YOUR-VERCEL-DOMAIN.vercel.app/login.html
 
 The deployment uses HTTPS, so the PWA can be installed from a supported mobile browser.
 
+### Install on iPhone
+
+1. Open the Vercel URL in Safari.
+2. Tap **Share**.
+3. Choose **Add to Home Screen**.
+4. Confirm the name **Zentrid**.
+
+### Install on Android
+
+1. Open the Vercel URL in Chrome.
+2. Open the browser menu.
+3. Choose **Install app** or **Add to Home screen**.
+
+When a newer deployment is detected, the app shows an **Update available** prompt. The offline screen is used only when a page cannot be loaded from the network or the cached app shell.
+
 ## 4. Local development
 
 ```powershell
@@ -52,7 +67,7 @@ Open:
 http://localhost:5050/login.html
 ```
 
-Local development uses the Express proxy in `src/proxy-server.ts`. Vercel deployment uses external rewrites from `vercel.json` instead.
+Local development uses the built-in Node.js HTTP proxy in `src/proxy-server.ts`. Vercel deployment uses external rewrites from `vercel.json` instead.
 
 ## API routing
 
