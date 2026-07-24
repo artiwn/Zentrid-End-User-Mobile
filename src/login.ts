@@ -32,7 +32,7 @@
     if (!button) return;
     button.disabled = true;
     button.textContent = 'Signing in…';
-    setStatus('Connecting securely…');
+    setStatus('Signing you in securely…');
     try {
       await window.ZentridAuth.login(username, password);
       const valid = await window.ZentridAuth.ensureSession('');

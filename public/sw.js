@@ -1,4 +1,4 @@
-const CACHE = 'zentrid-mobile-shell-v1.0.2';
+const CACHE = 'zentrid-mobile-shell-v1.0.3';
 const STATIC = ['/index.html','/login.html','/assets/css/mobile.css','/assets/js/api-client.js','/assets/js/mobile-api.js','/assets/js/auth-guard.js','/assets/js/app.js','/assets/js/login.js','/assets/icons/icon.svg'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(STATIC)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())));

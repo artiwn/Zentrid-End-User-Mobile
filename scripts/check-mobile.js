@@ -26,6 +26,14 @@ for (const forbidden of ['OWNER-TPL-','RPT-OWNER-','INV-ARM-001','Arpi Plant 01'
 for (const pattern of [/resource\([^)]*['"]\/api\/EndUser\//, /resource\([^)]*['"]\/api\/Ui\/dashboard/]) {
   if (pattern.test(api)) throw new Error(`Unavailable backend route is still actively requested: ${pattern}`);
 }
+
+const loginHtml = fs.readFileSync('dist/login.html', 'utf8');
+const css = fs.readFileSync('dist/assets/css/mobile.css', 'utf8');
+if (loginHtml.includes('mobile-login-energy-card') || loginHtml.includes('Live API')) throw new Error('Obsolete technical login card is still visible.');
+if (!css.includes('min-height: 100dvh') || !css.includes('min-height: 100svh')) throw new Error('Dynamic mobile login viewport protection is missing.');
+for (const phrase of ['Live API data','Cached API data','API data unavailable','Latest API values','No API reports','Live backend API','/api/Auth/me','Connecting to Zentrid API services']) {
+  if (app.includes(phrase)) throw new Error(`Technical UI copy is still visible: ${phrase}`);
+}
 const html = fs.readFileSync('dist/index.html','utf8');
 if (!html.includes('viewport-fit=cover') || !html.includes('manifest.webmanifest')) throw new Error('Mobile/PWA metadata missing.');
 console.log(`Mobile build check passed: ${required.length} artifacts, 11 routes, API-only adapter${requireProxy ? ', local proxy' : ', static deployment'}.`);

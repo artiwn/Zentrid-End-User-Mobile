@@ -176,13 +176,13 @@
 
   function freshnessText(meta: ApiMeta): string {
     if (!meta) return 'Not loaded';
-    if (meta.state === 'error') return 'API unavailable';
-    if (meta.state === 'empty') return 'No API records';
-    if (!meta.fetchedAt) return meta.state === 'cached' ? 'Cached API data' : 'API connected';
+    if (meta.state === 'error') return 'Unavailable';
+    if (meta.state === 'empty') return 'No records';
+    if (!meta.fetchedAt) return meta.state === 'cached' ? 'Last saved update' : 'Up to date';
     const timestamp = Date.parse(meta.fetchedAt);
-    if (!Number.isFinite(timestamp)) return meta.state === 'cached' ? 'Cached API data' : 'API connected';
+    if (!Number.isFinite(timestamp)) return meta.state === 'cached' ? 'Last saved update' : 'Up to date';
     const minutes = Math.max(0, Math.floor((Date.now() - timestamp) / 60000));
-    return `${meta.state === 'cached' ? 'Cached' : 'Updated'} ${minutes < 1 ? 'now' : `${minutes} min ago`}`;
+    return minutes < 1 ? 'Updated just now' : `Updated ${minutes} min ago`;
   }
 
   function pageTitle(): string {
@@ -229,10 +229,10 @@
 
   function globalFreshness(): string {
     const metas = ['plants','devices','alerts',`energy:${state.energyPeriod}`,'profile'].map(resourceMeta).filter(Boolean) as NonNullable<ApiMeta>[];
-    if (metas.some(meta => meta.state === 'live')) return 'Live API data';
-    if (metas.some(meta => meta.state === 'cached')) return 'Cached API data';
-    if (state.loading) return 'Connecting…';
-    return 'API data unavailable';
+    if (metas.some(meta => meta.state === 'live')) return 'Up to date';
+    if (metas.some(meta => meta.state === 'cached')) return 'Last saved update';
+    if (state.loading) return 'Updating…';
+    return 'Data unavailable';
   }
 
   function emptyState(title: string, detail: string, action = ''): string {
@@ -282,11 +282,11 @@
     return `
       <section class="mobile-greeting"><p>${escapeHtml(greeting)}, ${escapeHtml(firstName)}</p><h2>${escapeHtml(plant ? nameOf(plant, 'plant') : 'Your energy portfolio')}</h2></section>
       <section class="mobile-hero-card ${toneFor(plantStatus)}">
-        <div><span class="mobile-eyebrow">System status</span><h2>${escapeHtml(plantStatus)}</h2><p>${plant ? escapeHtml(text(plantRecords, ['location','address','city','region'], 'Plant data connected')) : 'No plant record was returned by the API.'}</p></div>
+        <div><span class="mobile-eyebrow">System status</span><h2>${escapeHtml(plantStatus)}</h2><p>${plant ? escapeHtml(text(plantRecords, ['location','address','city','region'], 'Location not provided')) : 'No plant is assigned to this account.'}</p></div>
         <div class="mobile-hero-orb">${toneFor(plantStatus) === 'success' ? '✓' : toneFor(plantStatus) === 'danger' ? '!' : '•'}</div>
       </section>
       <section class="mobile-metric-grid">
-        ${metricCard('Current Power', currentPower, 'Latest API reading')}
+        ${metricCard('Current Power', currentPower, 'Latest reading')}
         ${metricCard('Energy Today', todayEnergy, 'Generated')}
         ${metricCard('Sold Today', soldEnergy, 'Grid export')}
         ${metricCard('Revenue', revenue, 'Latest available')}
@@ -305,7 +305,7 @@
 
   function renderPlant(): string {
     const plant = primaryPlant();
-    if (!plant) return emptyState('Plant unavailable', 'The API did not return a plant assigned to this account.');
+    if (!plant) return emptyState('Plant unavailable', 'No plant is assigned to this account.');
     const records = collectRecords(plant);
     const telemetry = telemetryRecords();
     const status = statusOf(plant);
@@ -321,7 +321,7 @@
         ${metricCard('Capacity', metric(records, ['capacity','installedCapacity','nominalCapacity'], 'kW'))}
         ${metricCard('Current Power', metric(telemetry, ['currentPower','activePower','powerNow','power'], 'kW'))}
         ${metricCard('Energy Today', metric(telemetry, ['energyToday','todayEnergy','dailyEnergy','generatedToday'], 'kWh'))}
-        ${metricCard('Devices', String(state.devices.length), 'API records')}
+        ${metricCard('Devices', String(state.devices.length), 'Registered')}
       </section>
       <section class="mobile-card">
         ${sectionHeader('Plant information')}
@@ -385,7 +385,7 @@
         <div><strong>${state.devices.filter(row => toneFor(statusOf(row)) !== 'success').length}</strong><span>Attention</span></div>
       </section>
       <section class="mobile-list-stack">
-        ${filtered.length ? filtered.map(deviceCard).join('') : emptyState('No devices found', 'No API device records match the current filters.')}
+        ${filtered.length ? filtered.map(deviceCard).join('') : emptyState('No devices found', 'No devices match the current filters.')}
       </section>`;
   }
 
@@ -395,7 +395,7 @@
 
   function renderDeviceDetail(): string {
     const device = findById(state.devices, state.routeId);
-    if (!device) return emptyState('Device unavailable', 'The requested device ID was not returned by the API.');
+    if (!device) return emptyState('Device unavailable', 'The requested device could not be found.');
     const records = collectRecords(device);
     const status = statusOf(device);
     const type = text(records, ['type','deviceType','category','assetType'], 'Device');
@@ -459,13 +459,13 @@
         ${['All','Open','Resolved'].map(value => `<button class="${state.alertStatus === value ? 'active' : ''}" data-alert-filter="${value}">${value}</button>`).join('')}
       </section>
       <section class="mobile-list-stack">
-        ${filtered.length ? filtered.map(alertCard).join('') : emptyState('No alert records', 'The API did not return alerts for this filter.')}
+        ${filtered.length ? filtered.map(alertCard).join('') : emptyState('No alerts found', 'No alerts match the current filter.')}
       </section>`;
   }
 
   function renderAlertDetail(): string {
     const alert = findById(state.alerts, state.routeId);
-    if (!alert) return emptyState('Alert unavailable', 'The requested alert ID was not returned by the API.');
+    if (!alert) return emptyState('Alert unavailable', 'The requested alert could not be found.');
     const records = collectRecords(alert);
     const status = statusOf(alert);
     const severity = text(records, ['severity','priority','level'], status);
@@ -473,7 +473,7 @@
     return `
       <section class="mobile-alert-detail ${toneFor(severity)}">
         <div class="mobile-alert-symbol">!</div><span class="mobile-eyebrow">${escapeHtml(severity)}</span>
-        <h2>${escapeHtml(nameOf(alert, 'alert'))}</h2><p>${escapeHtml(text(records, ['message','description','summary','details'], 'No additional explanation was returned by the API.'))}</p>
+        <h2>${escapeHtml(nameOf(alert, 'alert'))}</h2><p>${escapeHtml(text(records, ['message','description','summary','details'], 'No additional explanation is available.'))}</p>
         <div class="mobile-detail-actions">${statusPill(status)}${linkedDeviceId ? `<button data-device-id="${escapeHtml(linkedDeviceId)}">Open device</button>` : ''}</div>
       </section>
       <section class="mobile-card">
@@ -544,17 +544,17 @@
     const tariff = metric(records, ['tariff','energyTariff','pricePerKwh','rate'], '');
     const hasFinance = [revenue, received, outstanding, sold].some(value => value !== '—') || buyer !== 'Not provided' || tariff !== '—';
     return `
-      <section class="mobile-finance-hero"><span class="mobile-eyebrow">Latest API values</span><h2>${escapeHtml(revenue)}</h2><p>Total revenue available to this account</p></section>
+      <section class="mobile-finance-hero"><span class="mobile-eyebrow">Latest available</span><h2>${escapeHtml(revenue)}</h2><p>Total revenue available to this account</p></section>
       ${hasFinance ? `
         <section class="mobile-metric-grid">${metricCard('Energy Sold', sold)}${metricCard('Received', received)}${metricCard('Outstanding', outstanding)}${metricCard('Tariff', tariff)}</section>
         <section class="mobile-card">${sectionHeader('Agreement')}${infoRow('Buyer', buyer)}${infoRow('Contract', text(records, ['contractName','agreementName','ppaName']))}${infoRow('Settlement status', text(records, ['settlementStatus','paymentStatus','commercialStatus']))}${infoRow('Next settlement', dateText(pick(records, ['nextSettlementDate','settlementDate','dueDate'])))}</section>
-      ` : emptyState('Sales data unavailable', 'The current backend does not provide dedicated sales, settlement or payment endpoints. No local values are generated.')}`;
+      ` : emptyState('Sales data unavailable', 'Sales, settlement and payment information is not available for this account.')}`;
   }
 
   function renderReports(): string {
     if (!state.reports.length) return `
-      <section class="mobile-card mobile-feature-intro"><div class="mobile-feature-icon">▤</div><h2>Reports</h2><p>Reports will appear here when the backend exposes the End User reports endpoint.</p></section>
-      ${emptyState('No API reports', 'Report generation and scheduled delivery are disabled until backend endpoints are available.')}`;
+      <section class="mobile-card mobile-feature-intro"><div class="mobile-feature-icon">▤</div><h2>Reports</h2><p>Your available reports and downloads will appear here.</p></section>
+      ${emptyState('No reports available', 'Report generation and scheduled delivery are not available for this account.')}`;
     return `<section class="mobile-list-stack">${state.reports.map(row => {
       const records = collectRecords(row);
       const url = text(records, ['downloadUrl','url','fileUrl'], '');
@@ -581,7 +581,7 @@
       <section class="mobile-card">
         ${sectionHeader('Session')}
         ${infoRow('Status', 'Active')}
-        ${infoRow('Profile source', '/api/Auth/me')}
+        ${infoRow('Access', 'End User')}
         ${infoRow('Updated', freshnessText(resourceMeta('profile')))}
       </section>
       <button class="mobile-danger-button" data-action="logout">Sign out</button>`;
@@ -590,12 +590,12 @@
   function renderMore(): string {
     const entries = [
       ['energy','Energy','Production, export and performance','↗'],
-      ['sales','Sales & Revenue','Commercial values returned by API','$'],
+      ['sales','Sales & Revenue','Commercial information','$'],
       ['reports','Reports','Available reports and downloads','▤'],
       ['profile','Profile','Account and session information','◉']
     ];
     return `<section class="mobile-more-grid">${entries.map(([route, title, detail, icon]) => `<button data-route="${route}"><span>${icon}</span><strong>${title}</strong><small>${detail}</small><i>›</i></button>`).join('')}</section>
-      <section class="mobile-card">${sectionHeader('Application')} ${infoRow('Mode', 'Mobile-first PWA')}${infoRow('Data source', 'Live backend API')}${infoRow('Offline behavior', 'Last successful API snapshot')}${infoRow('Version', '1.0.0')}</section>`;
+      <section class="mobile-card">${sectionHeader('Application')} ${infoRow('Mode', 'Mobile app')}${infoRow('Updates', 'Automatic')}${infoRow('Offline access', 'Previous successful update')}${infoRow('Version', '1.0.3')}</section>`;
   }
 
   function infoRow(label: string, value: string): string {
@@ -603,7 +603,7 @@
   }
 
   function renderContent(): string {
-    if (state.loading) return `<section class="mobile-loading"><div class="mobile-loader"></div><h2>Loading your account</h2><p>Connecting to Zentrid API services…</p></section>`;
+    if (state.loading) return `<section class="mobile-loading"><div class="mobile-loader"></div><h2>Loading your account</h2><p>Preparing your dashboard…</p></section>`;
     switch (state.route) {
       case 'plant': return renderPlant();
       case 'devices': return renderDevices();
