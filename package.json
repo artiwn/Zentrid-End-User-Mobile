@@ -1,0 +1,26 @@
+{
+  "name": "zentrid-end-user-mobile",
+  "version": "1.0.2",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "clean": "node scripts/clean.js",
+    "typecheck": "tsc --noEmit -p tsconfig.browser.json && tsc --noEmit -p tsconfig.server.json",
+    "build:browser": "tsc -p tsconfig.browser.json",
+    "build:server": "tsc -p tsconfig.server.json",
+    "copy:static": "node scripts/copy-static.js",
+    "check:mobile": "node scripts/check-mobile.js",
+    "check:mobile:local": "node scripts/check-mobile.js --require-proxy",
+    "build": "npm run clean && npm run typecheck && npm run build:browser && npm run build:server && npm run copy:static && npm run check:mobile:local",
+    "build:vercel": "npm run clean && npm run typecheck && npm run build:browser && npm run copy:static && npm run check:mobile",
+    "start": "npm run build && node dist/proxy-server.js",
+    "dev": "npm run start"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=22 <25",
+    "npm": ">=10"
+  }
+}
