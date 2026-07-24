@@ -1,0 +1,14 @@
+{
+  "name": "Zentrid End User Mobile",
+  "short_name": "Zentrid",
+  "description": "Mobile plant monitoring for Zentrid End Users",
+  "start_url": "/index.html#/overview",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f3f6f8",
+  "theme_color": "#081a2b",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/assets/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
