@@ -1,14 +1,56 @@
 {
-  "name": "Zentrid End User Mobile",
+  "id": "/",
+  "name": "Zentrid End User",
   "short_name": "Zentrid",
   "description": "Mobile plant monitoring for Zentrid End Users",
+  "lang": "en",
+  "dir": "ltr",
   "start_url": "/index.html#/overview",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#f3f6f8",
   "theme_color": "#081a2b",
   "orientation": "portrait-primary",
+  "categories": ["business", "utilities", "productivity"],
   "icons": [
-    { "src": "/assets/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    {
+      "src": "/assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Alerts",
+      "short_name": "Alerts",
+      "url": "/index.html#/alerts",
+      "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Devices",
+      "short_name": "Devices",
+      "url": "/index.html#/devices",
+      "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Energy",
+      "short_name": "Energy",
+      "url": "/index.html#/energy",
+      "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
   ]
 }

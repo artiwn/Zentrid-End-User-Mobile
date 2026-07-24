@@ -23,7 +23,8 @@
     telemetry: {} as unknown,
     profile: {} as AnyRecord,
     reports: [] as AnyRecord[],
-    errors: [] as string[]
+    errors: [] as string[],
+    logoutConfirm: false
   };
 
   const navigation = [
@@ -218,16 +219,35 @@
             <button class="mobile-avatar" data-route="profile" aria-label="Profile">${escapeHtml(initials)}</button>
           </div>
           <div class="mobile-sync-line">
-            <span class="mobile-live-dot"></span><span>${escapeHtml(globalFreshness())}</span>
+            <span class="mobile-live-dot ${navigator.onLine ? '' : 'offline'}"></span><span>${escapeHtml(globalFreshness())}</span>
             <button data-action="refresh" ${state.refreshing ? 'disabled' : ''}>${state.refreshing ? 'Refreshing…' : 'Refresh'}</button>
           </div>
         </header>
         <main class="mobile-content">${content}</main>
         <nav class="mobile-bottom-nav" aria-label="Primary navigation">${nav}</nav>
+        ${logoutDialog()}
+      </div>`;
+  }
+
+
+  function logoutDialog(): string {
+    if (!state.logoutConfirm) return '';
+    return `
+      <div class="mobile-dialog-backdrop" data-action="logout-cancel">
+        <section class="mobile-dialog" role="dialog" aria-modal="true" aria-labelledby="logoutDialogTitle" onclick="event.stopPropagation()">
+          <div class="mobile-dialog-icon">↪</div>
+          <h2 id="logoutDialogTitle">Sign out?</h2>
+          <p>You will need to sign in again to open your plant dashboard.</p>
+          <div class="mobile-dialog-actions">
+            <button type="button" class="secondary" data-action="logout-cancel">Cancel</button>
+            <button type="button" class="danger" data-action="logout-confirm">Sign out</button>
+          </div>
+        </section>
       </div>`;
   }
 
   function globalFreshness(): string {
+    if (navigator.onLine === false) return 'Offline';
     const metas = ['plants','devices','alerts',`energy:${state.energyPeriod}`,'profile'].map(resourceMeta).filter(Boolean) as NonNullable<ApiMeta>[];
     if (metas.some(meta => meta.state === 'live')) return 'Up to date';
     if (metas.some(meta => meta.state === 'cached')) return 'Last saved update';
@@ -595,7 +615,7 @@
       ['profile','Profile','Account and session information','◉']
     ];
     return `<section class="mobile-more-grid">${entries.map(([route, title, detail, icon]) => `<button data-route="${route}"><span>${icon}</span><strong>${title}</strong><small>${detail}</small><i>›</i></button>`).join('')}</section>
-      <section class="mobile-card">${sectionHeader('Application')} ${infoRow('Mode', 'Mobile app')}${infoRow('Updates', 'Automatic')}${infoRow('Offline access', 'Previous successful update')}${infoRow('Version', '1.0.3')}</section>`;
+      <section class="mobile-card">${sectionHeader('Application')} ${infoRow('Mode', 'Mobile app')}${infoRow('Updates', 'Automatic')}${infoRow('Offline access', 'Previous successful update')}${infoRow('Version', '1.0.4')}</section>`;
   }
 
   function infoRow(label: string, value: string): string {
@@ -636,7 +656,12 @@
     }));
     app.querySelector('[data-action="back"]')?.addEventListener('click', () => history.back());
     app.querySelector('[data-action="refresh"]')?.addEventListener('click', () => void loadData(true));
-    app.querySelector('[data-action="logout"]')?.addEventListener('click', () => window.ZentridAuth.logout(true));
+    app.querySelector('[data-action="logout"]')?.addEventListener('click', () => { state.logoutConfirm = true; render(); });
+    app.querySelectorAll('[data-action="logout-cancel"]').forEach(element => element.addEventListener('click', () => { state.logoutConfirm = false; render(); }));
+    app.querySelector('[data-action="logout-confirm"]')?.addEventListener('click', () => {
+      window.ZentridAuth.logout(false);
+      window.location.replace('login.html?reason=logout');
+    });
 
     const search = app.querySelector<HTMLInputElement>('#deviceSearch');
     search?.addEventListener('input', () => { state.deviceQuery = search.value; render(); requestAnimationFrame(() => {
@@ -696,11 +721,16 @@
   }
 
   window.addEventListener('hashchange', syncRoute);
-  window.addEventListener('online', () => void loadData(true));
+  window.addEventListener('zentrid:connectivity', (event: Event) => {
+    const online = Boolean((event as CustomEvent<{ online?: boolean }>).detail?.online);
+    if (online) void loadData(true);
+    else render();
+  });
+  window.addEventListener('zentrid:session-expired', () => {
+    const next = encodeURIComponent(window.location.pathname.replace(/^\/+/, '') + window.location.hash);
+    window.location.replace(`login.html?reason=session&next=${next}`);
+  });
   syncRoute();
   void loadData();
 
-  if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
-    window.addEventListener('load', () => void navigator.serviceWorker.register('/sw.js').catch(() => undefined));
-  }
 })();

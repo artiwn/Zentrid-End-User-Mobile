@@ -20,6 +20,7 @@
   function intro(): string {
     if (qs('reason') === 'role') return 'This account does not have End User mobile access.';
     if (qs('reason') === 'session') return 'Your session expired. Sign in again.';
+    if (qs('reason') === 'logout') return 'You have signed out.';
     return 'Sign in to monitor your plant from your phone.';
   }
 

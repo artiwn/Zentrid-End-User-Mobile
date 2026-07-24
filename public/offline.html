@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#081a2b" />
+  <meta name="color-scheme" content="light" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Zentrid" />
+  <title>Zentrid — Offline</title>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/assets/icons/favicon-32.png" type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png" sizes="180x180" />
+  <link rel="stylesheet" href="/assets/css/mobile.css" />
+</head>
+<body class="mobile-offline-page">
+  <main class="mobile-offline-shell">
+    <div class="mobile-offline-brand"><span>Z</span><strong>Zentrid</strong></div>
+    <section class="mobile-offline-card">
+      <div class="mobile-offline-icon" aria-hidden="true">⌁</div>
+      <span class="mobile-eyebrow">Connection unavailable</span>
+      <h1>You’re offline</h1>
+      <p>Reconnect to the internet to refresh your plant, device and alert information.</p>
+      <button type="button" onclick="window.location.reload()">Try again</button>
+      <a href="/index.html#/overview">Open saved app shell</a>
+    </section>
+  </main>
+  <script src="/assets/js/pwa.js"></script>
+</body>
+</html>

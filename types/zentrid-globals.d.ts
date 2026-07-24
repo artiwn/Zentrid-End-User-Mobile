@@ -17,5 +17,6 @@ interface Window {
   ZentridEndUserLayout: ZentridEndUserLayoutApi;
   ZentridEndUserAPI: any;
   ZentridRelease: any;
+  ZentridPWA: { canInstall(): boolean; install(): Promise<boolean> };
   [key: string]: any;
 }
